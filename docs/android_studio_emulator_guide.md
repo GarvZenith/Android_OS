@@ -54,12 +54,13 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Manifest Linking & Syncing AOSP Base Source Code on E:\ Drive
+### 📍 Phase 3: Manifest Initialization & Syncing AOSP Base Source Code on E:\ Drive
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Manifest initialize & link
-  mkdir -p .repo/manifests && git clone https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 .repo/manifests && ln -sf manifests/default.xml .repo/manifest.xml
+  # Clean corrupted repo state & initialize clean manifest
+  cd /mnt/e/android/aosp && rm -rf .repo
+  /usr/local/bin/repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --no-repo-verify
 
   # Full source code E:\ drive par sync/download karein
   /usr/local/bin/repo sync -c -j$(nproc)
