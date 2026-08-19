@@ -1,71 +1,101 @@
-# Android Studio Emulator Custom OS Setup & Testing Guide
+# Android Studio Emulator Setup & Execution Map (Where & How to Run)
 
-This guide explains step-by-step how to load, run, and test your **Custom Multi-OS Android System** inside **Android Studio Emulator**.
-
----
-
-## 1. Setting Up Custom System Image in Android Studio
-
-Once your custom OS images (`system.img`, `vendor.img`, `ramdisk.img`) are built:
-
-1. Locate your Android Studio SDK directory:
-   - Windows: `C:\Users\<username>\AppData\Local\Android\Sdk\`
-   - Linux: `~/Android/Sdk/`
-
-2. Create a custom system image directory:
-   ```bash
-   mkdir -p ~/Android/Sdk/system-images/android-34/custom_multi_os/x86_64/
-   ```
-
-3. Copy your compiled images into this folder:
-   ```bash
-   cp system.img vendor.img ramdisk.img kernel-ranchu ~/Android/Sdk/system-images/android-34/custom_multi_os/x86_64/
-   ```
-
-4. Add a `source.properties` file:
-   ```ini
-   Pkg.Revision=1
-   Pkg.Desc=Custom Multi-OS Android System Image
-   SystemImage.Abi=x86_64
-   SystemImage.TagId=default
-   AndroidVersion.ApiLevel=34
-   ```
+This document provides an explicit breakdown of **WHERE** (Linux terminal, Windows CMD, Android Studio GUI) and **HOW** to execute each step of building and running the Custom Multi-OS Android System inside Android Studio Emulator.
 
 ---
 
-## 2. Creating the Virtual Device in Android Studio
+## Environment & Tool Execution Map
 
-1. Open **Android Studio**.
-2. Click **Tools > Device Manager** (or AVD Manager).
-3. Click **Create Virtual Device**.
-4. Select a device profile (e.g. **Pixel 7** or **Phone - Medium Phone**).
-5. On the **System Image** selection screen, click the **Other Images** tab.
-6. Select **Custom Multi-OS Android System Image** (API 34, x86_64).
-7. Set RAM to **4096 MB** or **8192 MB** and Internal Storage to **32 GB**.
-8. Click **Finish**.
-
----
-
-## 3. Testing Features in Android Studio Emulator
-
-### A. Unrestricted Root & Developer Testing
-Open terminal on host machine and connect to running emulator:
-```bash
-adb root
-adb shell
-# Check root permission
-su
-# Check SELinux mode
-getenforce
+```
++-----------------------------------------------------------------------------------+
+| STEP 1: Build System Image                                                        |
+| WHERE: Linux Terminal (Ubuntu / WSL2)                                             |
+| COMMANDS: source build/envsetup.sh -> lunch sdk_gphone64_x86_64-userdebug -> mka  |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 2: Deploy Images to Windows SDK                                              |
+| WHERE: Windows Command Prompt (cmd.exe) / File Explorer                           |
+| PATH: C:\Users\<Username>\AppData\Local\Android\Sdk\system-images\...             |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 3: Create AVD in Android Studio                                              |
+| WHERE: Android Studio GUI -> Tools > Device Manager > Other Images                |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+| STEP 4: Run & Test Custom OS                                                      |
+| WHERE: Emulator GUI + Windows CMD (adb root / su / Extended Controls)             |
++-----------------------------------------------------------------------------------+
 ```
 
-### B. Testing Phone Calls & Telephony
-In Android Studio Emulator:
-1. Click the **3 dots (...)** icon on the emulator sidebar to open **Extended Controls**.
-2. Go to **Phone** tab.
-3. Type any phone number (e.g. `+15555555555`) and click **Call Device**.
-4. Test incoming call UI, answering, and voice audio.
+---
 
-### C. Testing Windows (.exe) & Linux Containers
-Launch Winlator or Termux-X11 inside the emulator:
-- Since Android Studio Emulator runs natively on your PC's x86_64 CPU, Windows `.exe` apps run with high performance!
+## Detailed Step-by-Step Execution Guide
+
+### STEP 1: System Image Compilation
+- **Where to Run**: **Ubuntu Linux Terminal** (or WSL2 Linux terminal on Windows).
+- **Why**: Android AOSP source code must be compiled in a Linux environment with case-sensitive filesystem support.
+- **Commands to Run**:
+  ```bash
+  cd ~/aosp
+  source build/envsetup.sh
+  lunch sdk_gphone64_x86_64-userdebug
+  mka -j$(nproc)
+  ```
+- **Output Generated**: `out/target/product/emulator_x86_64/` containing:
+  - `system.img`
+  - `vendor.img`
+  - `ramdisk.img`
+  - `kernel-ranchu`
+
+---
+
+### STEP 2: Custom Images Setup in Windows SDK
+- **Where to Run**: **Windows Command Prompt (cmd)** or **PowerShell**.
+- **Commands to Run**:
+  ```cmd
+  mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
+  ```
+- **File Transfer**: Copy the 4 generated files (`system.img`, `vendor.img`, `ramdisk.img`, `kernel-ranchu`) from your Linux environment into this newly created Windows folder.
+- **Create Property File**: Create a file named `source.properties` inside that folder with the following content:
+  ```ini
+  Pkg.Revision=1
+  Pkg.Desc=Custom Multi-OS Android System Image
+  SystemImage.Abi=x86_64
+  SystemImage.TagId=default
+  AndroidVersion.ApiLevel=34
+  ```
+
+---
+
+### STEP 3: Create Virtual Device (AVD) in Android Studio GUI
+- **Where to Run**: **Android Studio GUI application** on Windows.
+- **Steps**:
+  1. Launch **Android Studio**.
+  2. Navigate to **Tools > Device Manager** from the top menu.
+  3. Click **Create Virtual Device** (`+` button).
+  4. Select Hardware profile: **Pixel 7** or **Medium Phone** -> Click **Next**.
+  5. On System Image Selection: Click the **Other Images** tab.
+  6. Select **Custom Multi-OS Android System Image** -> Click **Next**.
+  7. Configure RAM (**4096 MB** or **8192 MB**) and Storage (**32 GB**) -> Click **Finish**.
+
+---
+
+### STEP 4: Launching & Testing the Custom OS
+- **Where to Run**: **Android Studio Emulator Window** + **Windows CMD** (for ADB commands).
+- **Steps**:
+  1. Click the **Play (▶)** button in Device Manager to start the emulator.
+  2. Open Windows CMD to test root and security hooks:
+     ```cmd
+     adb root
+     adb shell
+     su
+     getenforce
+     ```
+  3. **Test Virtual SIM Calling**: Click the **Extended Controls (...)** icon on the emulator toolbar -> Go to **Phone** tab -> Type number `+15555555555` -> Click **Call Device**.
+  4. **Test Multi-OS Apps**: Open pre-installed **Winlator** for Windows `.exe` apps or **Termux-X11** for Linux desktop environment directly on the emulator home screen.
