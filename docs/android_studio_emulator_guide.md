@@ -11,8 +11,8 @@ Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 - Ubuntu Linux Path: `/mnt/e/android`
 
 > [!IMPORTANT]
-> **WSL2 NTFS Permission & Repo Init Fix**
-> Before running `repo init` on an external Windows drive (`/mnt/e/`), ensure Linux metadata is mounted and `--no-repo-verify` flag is used:
+> **WSL2 NTFS Permission & Direct Manifest Setup**
+> Before running `repo sync` on an external Windows drive (`/mnt/e/`), ensure Linux metadata is mounted and manifest is cloned cleanly:
 > ```bash
 > git config --global core.filemode false
 > sudo umount /mnt/e 2>/dev/null
@@ -58,15 +58,12 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Syncing AOSP Base Source Code on E:\ Drive
+### 📍 Phase 3: Manifest Linking & Syncing AOSP Base Source Code on E:\ Drive
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Clean old corrupted repo state
-  rm -rf /mnt/e/android/aosp/.repo
-
-  # Manifest initialize (with --no-repo-verify)
-  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --no-repo-verify
+  # Manifest initialize & link
+  mkdir -p .repo/manifests && git clone https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 .repo/manifests && ln -sf manifests/default.xml .repo/manifest.xml
 
   # Full source code E:\ drive par sync/download karein
   repo sync -c -j$(nproc)
