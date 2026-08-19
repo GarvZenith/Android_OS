@@ -20,9 +20,9 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 - **Target Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. Configure Git Identity (Required by repo init)
-  git config --global user.email "garvzenith@gmail.com"
-  git config --global user.name "Garv Zenith"
+  # 1. Configure Git Identity (User: GarvZenith, Email: garvv87@gmail.com)
+  git config --global user.email "garvv87@gmail.com"
+  git config --global user.name "GarvZenith"
   git config --global core.filemode false
 
   # 2. Enable Linux metadata permissions on E:\ drive
