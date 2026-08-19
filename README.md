@@ -48,10 +48,12 @@ All detailed specifications, plans, and guides are structured inside the [`docs/
 
 - 📖 **[PROJECT_ROADMAP.md](docs/PROJECT_ROADMAP.md)**: Step-by-step master development plan from source code setup to ROM compilation.
 - 📖 **[DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)**: Source code building, kernel patching, and module injection guide.
+- 📖 **[ANDROID_STUDIO_EMULATOR_GUIDE.md](docs/android_studio_emulator_guide.md)**: Running & testing Custom Android OS in Android Studio Emulator.
 - 📖 **[GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md)**: Git policies, commit conventions, versioning, and GitHub release workflow.
 - 📖 **[FLASHING_AND_SETUP.md](docs/FLASHING_AND_SETUP.md)**: Bootloader unlocking, TWRP/OrangeFox recovery installation, and ROM flashing guide.
 - 📖 **[ARCHITECTURE.MD](docs/architecture.md)**: Technical specification of all core subsystems.
 - 📖 **[HARDWARE_REQUIREMENTS.MD](docs/hardware_requirements.md)**: Processor (Qualcomm Snapdragon), RAM, and storage recommendations.
+- 📖 **[IMPLEMENTATION_PLAN_V4.MD](docs/implementation_plan_v4_android_studio_emulator.md)**: Android Studio Emulator target plan.
 - 📖 **[DEVICE_SETUP_CHECKLIST.MD](docs/device_setup_checklist.md)**: Physical phone preparation checklist.
 - 📖 **[MULTI_OS_COEXISTENCE_GUIDE.MD](docs/multi_os_coexistence_guide.md)**: Multi-window split-screen usage guide.
 

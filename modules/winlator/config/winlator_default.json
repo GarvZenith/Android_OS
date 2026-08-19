@@ -1,0 +1,13 @@
+{
+  "containerName": "Windows Desktop Environment",
+  "screenResolution": "1280x720",
+  "graphicsDriver": "Turnip (Adreno)",
+  "dxwrapper": "DXVK 2.3",
+  "box64Version": "v0.2.6",
+  "wineVersion": "Wine 9.2",
+  "envVariables": {
+    "ZINK_DESCRIPTORS": "lazy",
+    "MESA_VK_WINSYS": "wayland",
+    "DXVK_HUD": "compiler,fps"
+  }
+}

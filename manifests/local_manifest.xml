@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Custom Multi-OS Android System - Local Repo Manifest -->
+
+  <!-- Remote Repositories -->
+  <remote name="github" fetch="https://github.com" review="https://github.com" />
+  <remote name="lineage" fetch="https://github.com/LineageOS" />
+
+  <!-- Prebuilt Proprietary Blobs & MicroG Repositories -->
+  <project path="vendor/extra/packages/microg" name="microg/android_packages_apps_GmsCore" remote="github" revision="master" />
+  
+  <!-- Additional Device Specific Trees (Replace 'device_codename' as needed) -->
+  <!-- <project path="device/custom/device_codename" name="LineageOS/android_device_custom_device_codename" remote="lineage" revision="lineage-20.0" /> -->
+  <!-- <project path="kernel/custom/device_codename" name="LineageOS/android_kernel_custom_device_codename" remote="lineage" revision="lineage-20.0" /> -->
+  <!-- <project path="vendor/custom/device_codename" name="TheMuppets/proprietary_vendor_custom_device_codename" remote="github" revision="lineage-20.0" /> -->
+</manifest>

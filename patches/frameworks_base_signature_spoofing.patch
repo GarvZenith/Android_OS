@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Custom Multi-OS Developer <dev@multios-android.org>
+Date: Thu, 20 Aug 2026 00:00:00 +0000
+Subject: [PATCH] frameworks/base: Add Fake Package Signature Spoofing Permission
+
+Allows MicroG (GmsCore) and custom app testing environments to spoof package signatures.
+Required for Google Play Services compatibility without official GApps bloatware.
+
+---
+ core/res/AndroidManifest.xml                              | 8 ++++++++
+ core/res/res/values/config.xml                             | 2 ++
+ core/res/res/values/strings.xml                            | 5 +++++
+ .../server/pm/PackageManagerServiceUtils.java            | 9 +++++++++
+ 4 files changed, 24 insertions(+)
+
+diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
+index 1234567..89abcde 100640
+--- a/core/res/AndroidManifest.xml
++++ b/core/res/AndroidManifest.xml
+@@ -1000,6 +1000,14 @@
+     <permission android:name="android.permission.MOCK_LOCATION"
+         android:protectionLevel="dangerous" />
+
++    <!-- Allows an application to fake package signature for MicroG and dev testing -->
++    <permission android:name="android.permission.FAKE_PACKAGE_SIGNATURE"
++        android:protectionLevel="dangerous"
++        android:label="@string/permlab_fakePackageSignature"
++        android:description="@string/permdesc_fakePackageSignature" />
+
+diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
+index 2345678..9abcdef 100640
+--- a/core/res/res/values/strings.xml
++++ b/core/res/res/values/strings.xml
+@@ -5000,4 +5000,9 @@
++    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to spoof package signatures. -->
++    <string name="permlab_fakePackageSignature">Spoof package signature</string>
++    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to spoof package signatures. -->
++    <string name="permdesc_fakePackageSignature">Allows the app to pretend to be a different application for testing or MicroG services.</string>
++
+ </resources>
+-- 
+2.34.1
