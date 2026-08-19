@@ -1,101 +1,105 @@
-# Android Studio Emulator Setup & Execution Map (Where & How to Run)
+# Step 1 Complete Walkthrough: Setting Up Linux Terminal on Windows & AOSP Compilation
 
-This document provides an explicit breakdown of **WHERE** (Linux terminal, Windows CMD, Android Studio GUI) and **HOW** to execute each step of building and running the Custom Multi-OS Android System inside Android Studio Emulator.
-
----
-
-## Environment & Tool Execution Map
-
-```
-+-----------------------------------------------------------------------------------+
-| STEP 1: Build System Image                                                        |
-| WHERE: Linux Terminal (Ubuntu / WSL2)                                             |
-| COMMANDS: source build/envsetup.sh -> lunch sdk_gphone64_x86_64-userdebug -> mka  |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-| STEP 2: Deploy Images to Windows SDK                                              |
-| WHERE: Windows Command Prompt (cmd.exe) / File Explorer                           |
-| PATH: C:\Users\<Username>\AppData\Local\Android\Sdk\system-images\...             |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-| STEP 3: Create AVD in Android Studio                                              |
-| WHERE: Android Studio GUI -> Tools > Device Manager > Other Images                |
-+-----------------------------------------------------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-| STEP 4: Run & Test Custom OS                                                      |
-| WHERE: Emulator GUI + Windows CMD (adb root / su / Extended Controls)             |
-+-----------------------------------------------------------------------------------+
-```
+This guide provides a detailed walkthrough of **STEP 1**: how to enable and open the **Linux Terminal (WSL2 / Ubuntu)** directly inside Windows, exact paths, and commands to compile the Custom Android OS system images for Android Studio Emulator.
 
 ---
 
-## Detailed Step-by-Step Execution Guide
+## PART A: Windows Par Linux Terminal Kaise Open Karein (WSL2 Setup)
 
-### STEP 1: System Image Compilation
-- **Where to Run**: **Ubuntu Linux Terminal** (or WSL2 Linux terminal on Windows).
-- **Why**: Android AOSP source code must be compiled in a Linux environment with case-sensitive filesystem support.
-- **Commands to Run**:
+Windows 10/11 ke andar **WSL2 (Windows Subsystem for Linux)** ki madad se aap native Ubuntu Linux Terminal chala sakte hain:
+
+### Method 1: Enabling & Opening WSL2 Ubuntu Terminal
+1. Windows Start Menu kholein -> Type karein `PowerShell`.
+2. `PowerShell` par Right-Click karein -> Select **Run as Administrator**.
+3. PowerShell mein ye command chalayein:
+   ```cmd
+   wsl --install
+   ```
+4. Jab installation complete ho jaye, apne PC ko restart karein.
+5. Restart hone ke baad Windows Start Menu kholein -> Type karein **Ubuntu** (ya PowerShell mein `wsl` type karke Enter dabayein).
+6. Aapke samne **Linux Terminal (`garv@DESKTOP:~$`)** open ho jayega!
+
+---
+
+## PART B: Step 1 Compilation Commands With Exact Paths
+
+Aapke Linux Terminal mein execution ka complete step-by-step path:
+
+### 📍 Phase 1: Home Directory & Project Folder Setup
+- **Linux Current Path**: `/home/garv/` (`~`)
+- **Commands**:
   ```bash
+  # Home directory mein jayein
+  cd ~
+
+  # AOSP Source code ke liye folder banayein
+  mkdir -p ~/aosp
+
+  # aosp folder ke andar jayein
   cd ~/aosp
+  ```
+- **New Working Path**: `/home/garv/aosp/`
+
+---
+
+### 📍 Phase 2: Installing Linux Build Toolchain
+- **Path**: `/home/garv/aosp/`
+- **Command**:
+  ```bash
+  sudo apt update && sudo apt install -y \
+      git-core gnupg flex bison build-essential zip curl zlib1g-dev \
+      gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
+      x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
+      libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk python3 \
+      rsync schedtool ccache libssl-dev repo
+  ```
+
+---
+
+### 📍 Phase 3: Syncing AOSP Base Source Code
+- **Path**: `/home/garv/aosp/`
+- **Commands**:
+  ```bash
+  # Manifest initialize karein
+  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
+
+  # Source code sync karein
+  repo sync -c -j$(nproc)
+  ```
+
+---
+
+### 📍 Phase 4: Environment Setup & Target Selection
+- **Path**: `/home/garv/aosp/`
+- **Commands**:
+  ```bash
+  # Build scripts setup karein
   source build/envsetup.sh
+
+  # Emulator target select karein
   lunch sdk_gphone64_x86_64-userdebug
+  ```
+
+---
+
+### 📍 Phase 5: Compiling Custom System Images
+- **Path**: `/home/garv/aosp/`
+- **Command**:
+  ```bash
   mka -j$(nproc)
   ```
-- **Output Generated**: `out/target/product/emulator_x86_64/` containing:
-  - `system.img`
-  - `vendor.img`
-  - `ramdisk.img`
-  - `kernel-ranchu`
+- **Compilation Progress**: Terminal par `[100% 125432/125432] Install: out/target/product/emulator_x86_64/system.img` dikhega.
 
 ---
 
-### STEP 2: Custom Images Setup in Windows SDK
-- **Where to Run**: **Windows Command Prompt (cmd)** or **PowerShell**.
-- **Commands to Run**:
-  ```cmd
-  mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
-  ```
-- **File Transfer**: Copy the 4 generated files (`system.img`, `vendor.img`, `ramdisk.img`, `kernel-ranchu`) from your Linux environment into this newly created Windows folder.
-- **Create Property File**: Create a file named `source.properties` inside that folder with the following content:
-  ```ini
-  Pkg.Revision=1
-  Pkg.Desc=Custom Multi-OS Android System Image
-  SystemImage.Abi=x86_64
-  SystemImage.TagId=default
-  AndroidVersion.ApiLevel=34
-  ```
+### 📍 Phase 6: Generated Output Files & Paths
+Build successful hone par aapke exact Linux path:
+`/home/garv/aosp/out/target/product/emulator_x86_64/`
 
----
+Is folder mein 4 custom image files generate hongi:
+1. `/home/garv/aosp/out/target/product/emulator_x86_64/system.img`
+2. `/home/garv/aosp/out/target/product/emulator_x86_64/vendor.img`
+3. `/home/garv/aosp/out/target/product/emulator_x86_64/ramdisk.img`
+4. `/home/garv/aosp/out/target/product/emulator_x86_64/kernel-ranchu`
 
-### STEP 3: Create Virtual Device (AVD) in Android Studio GUI
-- **Where to Run**: **Android Studio GUI application** on Windows.
-- **Steps**:
-  1. Launch **Android Studio**.
-  2. Navigate to **Tools > Device Manager** from the top menu.
-  3. Click **Create Virtual Device** (`+` button).
-  4. Select Hardware profile: **Pixel 7** or **Medium Phone** -> Click **Next**.
-  5. On System Image Selection: Click the **Other Images** tab.
-  6. Select **Custom Multi-OS Android System Image** -> Click **Next**.
-  7. Configure RAM (**4096 MB** or **8192 MB**) and Storage (**32 GB**) -> Click **Finish**.
-
----
-
-### STEP 4: Launching & Testing the Custom OS
-- **Where to Run**: **Android Studio Emulator Window** + **Windows CMD** (for ADB commands).
-- **Steps**:
-  1. Click the **Play (▶)** button in Device Manager to start the emulator.
-  2. Open Windows CMD to test root and security hooks:
-     ```cmd
-     adb root
-     adb shell
-     su
-     getenforce
-     ```
-  3. **Test Virtual SIM Calling**: Click the **Extended Controls (...)** icon on the emulator toolbar -> Go to **Phone** tab -> Type number `+15555555555` -> Click **Call Device**.
-  4. **Test Multi-OS Apps**: Open pre-installed **Winlator** for Windows `.exe` apps or **Termux-X11** for Linux desktop environment directly on the emulator home screen.
+In 4 files ko Step 2 ke mutabiq Windows SDK path mein copy karke Android Studio Emulator mein run kiya jayega!
