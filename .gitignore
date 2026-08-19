@@ -1,0 +1,35 @@
+# Android OS Build & Source GitIgnore
+
+# Build Outputs & Temporary Files
+out/
+build/
+.repo/
+*.img
+*.zip
+*.tar.gz
+*.iso
+
+# Logs & Cache
+*.log
+.cache/
+tmp/
+*.swp
+.DS_Store
+Thumbs.db
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+*.iml
+
+# Node / Python Virtual Envs
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Local Credentials & Keys
+*.pem
+*.pk8
+*.keystore
+private.key
