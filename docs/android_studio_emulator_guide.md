@@ -30,13 +30,13 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 2: Installing Linux Build Toolchain
+### 📍 Phase 2: Installing Linux Build Toolchain (Updated Package List)
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Command**:
   ```bash
   sudo apt update && sudo apt install -y \
-      git-core gnupg flex bison build-essential zip curl zlib1g-dev \
-      gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
+      git gnupg flex bison build-essential zip curl zlib1g-dev \
+      gcc-multilib g++-multilib libc6-dev-i386 libncurses-dev \
       x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
       libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk python3 \
       rsync schedtool ccache libssl-dev repo
@@ -92,22 +92,3 @@ Generated Files:
 2. `E:\android\aosp\out\target\product\emulator_x86_64\vendor.img`
 3. `E:\android\aosp\out\target\product\emulator_x86_64\ramdisk.img`
 4. `E:\android\aosp\out\target\product\emulator_x86_64\kernel-ranchu`
-
----
-
-## 📍 Step 2 Setup on Windows (Copying Files to Windows SDK)
-
-Since C:\ drive is low on space, you can also store your Android Studio custom system image directory on **E:\** drive or Android Studio SDK path:
-
-```cmd
-mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
-```
-Or create a symlink pointing to `E:\android\sdk\system-images\...`.
-Copy the 4 files from `E:\android\aosp\out\target\product\emulator_x86_64\` into the system image folder and add `source.properties`:
-```ini
-Pkg.Revision=1
-Pkg.Desc=Custom Multi-OS Android System Image
-SystemImage.Abi=x86_64
-SystemImage.TagId=default
-AndroidVersion.ApiLevel=34
-```
