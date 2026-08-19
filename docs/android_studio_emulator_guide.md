@@ -10,15 +10,6 @@ Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 - Windows Path: `E:\android`
 - Ubuntu Linux Path: `/mnt/e/android`
 
-> [!IMPORTANT]
-> **WSL2 NTFS Permission & Direct Manifest Setup**
-> Before running `repo sync` on an external Windows drive (`/mnt/e/`), ensure Linux metadata is mounted and manifest is cloned cleanly:
-> ```bash
-> git config --global core.filemode false
-> sudo umount /mnt/e 2>/dev/null
-> sudo mount -t drvfs E: /mnt/e -o metadata
-> ```
-
 ---
 
 ## ⚙️ PART 2: Modified Commands With Exact E:\ Drive Paths (`/mnt/e/android`)
@@ -44,16 +35,21 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 2: Installing Linux Build Toolchain
+### 📍 Phase 2: Installing Standalone Official Repo Tool & Build Toolchain
 - **Current Working Path**: `/mnt/e/android/aosp`
-- **Command**:
+- **Commands**:
   ```bash
+  # 1. Install Google Standalone Repo Tool (Fixes /usr/bin/repo launcher warning)
+  sudo curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo
+  sudo chmod a+rx /usr/local/bin/repo
+
+  # 2. Install AOSP build dependencies
   sudo apt update && sudo apt install -y \
       git gnupg flex bison build-essential zip curl zlib1g-dev \
       gcc-multilib g++-multilib libc6-dev-i386 libncurses-dev \
       x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
       libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk python3 \
-      rsync schedtool ccache libssl-dev repo
+      rsync schedtool ccache libssl-dev
   ```
 
 ---
@@ -66,7 +62,7 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
   mkdir -p .repo/manifests && git clone https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 .repo/manifests && ln -sf manifests/default.xml .repo/manifest.xml
 
   # Full source code E:\ drive par sync/download karein
-  repo sync -c -j$(nproc)
+  /usr/local/bin/repo sync -c -j$(nproc)
   ```
 
 ---
