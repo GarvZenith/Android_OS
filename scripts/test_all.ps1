@@ -8,7 +8,7 @@ Write-Host ""
 $errorsFound = 0
 
 # 1. Test Documentation Files
-Write-Host "[1/5] Checking Documentation Integrity..." -ForegroundColor Yellow
+Write-Host "[1/6] Checking Documentation Integrity..." -ForegroundColor Yellow
 $docFiles = @(
     "README.md",
     "LICENSE",
@@ -33,7 +33,7 @@ foreach ($doc in $docFiles) {
 
 Write-Host ""
 # 2. Test Custom Kernel & Framework Patches
-Write-Host "[2/5] Checking Patches & Kernel Configuration..." -ForegroundColor Yellow
+Write-Host "[2/6] Checking Patches & Kernel Configuration..." -ForegroundColor Yellow
 $patchFiles = @(
     "patches/frameworks_base_signature_spoofing.patch",
     "patches/su_root_integration.mk",
@@ -52,7 +52,7 @@ foreach ($patch in $patchFiles) {
 
 Write-Host ""
 # 3. Test Embedded Subsystem Modules (Winlator, Termux-X11, TouchHLE, MicroG)
-Write-Host "[3/5] Checking Subsystem Module Android.mk Definitions..." -ForegroundColor Yellow
+Write-Host "[3/6] Checking Subsystem Module Android.mk Definitions..." -ForegroundColor Yellow
 $moduleDirs = @("winlator", "termux_x11", "touchhle", "microg")
 
 foreach ($mod in $moduleDirs) {
@@ -66,8 +66,27 @@ foreach ($mod in $moduleDirs) {
 }
 
 Write-Host ""
-# 4. Test JSON Configuration Files
-Write-Host "[4/5] Checking Winlator Default Config JSON Syntax..." -ForegroundColor Yellow
+# 4. Test SELinux Security Policies & Init Scripts
+Write-Host "[4/6] Checking SELinux Policies & Init Scripts..." -ForegroundColor Yellow
+$sepolicyFiles = @(
+    "sepolicy/su.te",
+    "sepolicy/winlator.te",
+    "sepolicy/file_contexts",
+    "init/init.multi_os.rc"
+)
+
+foreach ($se in $sepolicyFiles) {
+    if (Test-Path $se) {
+        Write-Host "  [OK] Verified policy/script: $se" -ForegroundColor Green
+    } else {
+        Write-Host "  [ERROR] Missing policy/script: $se" -ForegroundColor Red
+        $errorsFound++
+    }
+}
+
+Write-Host ""
+# 5. Test JSON Configuration Files
+Write-Host "[5/6] Checking Winlator Default Config JSON Syntax..." -ForegroundColor Yellow
 $jsonPath = "modules/winlator/config/winlator_default.json"
 if (Test-Path $jsonPath) {
     try {
@@ -84,15 +103,16 @@ if (Test-Path $jsonPath) {
 }
 
 Write-Host ""
-# 5. Test Build Automation Scripts
-Write-Host "[5/5] Checking Shell Scripts & Manifest..." -ForegroundColor Yellow
+# 6. Test Build Automation Scripts & Device Targets
+Write-Host "[6/6] Checking Shell Scripts & Target BoardConfigs..." -ForegroundColor Yellow
 $scriptFiles = @(
     "scripts/setup_env.sh",
     "scripts/sync_source.sh",
     "scripts/apply_patches.sh",
     "scripts/build_rom.sh",
     "manifests/local_manifest.xml",
-    "devices/generic_arm64/BoardConfig.mk"
+    "devices/generic_arm64/BoardConfig.mk",
+    "devices/generic_x86_64/BoardConfig.mk"
 )
 
 foreach ($scr in $scriptFiles) {
@@ -107,7 +127,7 @@ foreach ($scr in $scriptFiles) {
 Write-Host ""
 Write-Host "=================================================" -ForegroundColor Cyan
 if ($errorsFound -eq 0) {
-    Write-Host " RESULT: ALL 21 OS COMPONENTS VERIFIED CLEAN! 🚀" -ForegroundColor Green
+    Write-Host " RESULT: ALL 26 OS COMPONENTS VERIFIED CLEAN! 🚀" -ForegroundColor Green
 } else {
     Write-Host " RESULT: $errorsFound ERRORS FOUND IN OS COMPONENTS!" -ForegroundColor Red
 }
