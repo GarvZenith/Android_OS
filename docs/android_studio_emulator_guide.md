@@ -1,49 +1,37 @@
-# Step 1 Complete Walkthrough: Setting Up Linux Terminal on Windows & AOSP Compilation
+# Step 1 Complete Walkthrough: WSL2 Ubuntu Setup on E:\ Drive & AOSP Compilation
 
-This guide provides a detailed walkthrough of **STEP 1**: how to enable and open the **Linux Terminal (WSL2 / Ubuntu)** directly inside Windows, exact paths, and commands to compile the Custom Android OS system images for Android Studio Emulator.
-
----
-
-## PART A: Windows Par Linux Terminal Kaise Open Karein (WSL2 Setup)
-
-Windows 10/11 ke andar **WSL2 (Windows Subsystem for Linux)** ki madad se aap native Ubuntu Linux Terminal chala sakte hain:
-
-### Method 1: Enabling & Opening WSL2 Ubuntu Terminal
-1. Windows Start Menu kholein -> Type karein `PowerShell`.
-2. `PowerShell` par Right-Click karein -> Select **Run as Administrator**.
-3. PowerShell mein ye command chalayein:
-   ```cmd
-   wsl --install
-   ```
-4. Jab installation complete ho jaye, apne PC ko restart karein.
-5. Restart hone ke baad Windows Start Menu kholein -> Type karein **Ubuntu** (ya PowerShell mein `wsl` type karke Enter dabayein).
-6. Aapke samne **Linux Terminal (`garv@DESKTOP:~$`)** open ho jayega!
+This guide provides a detailed walkthrough of **STEP 1** customized specifically for storing and building the Custom Android OS on **Drive E:\** (`E:\android` / `/mnt/e/android`) to save space on Drive C:\.
 
 ---
 
-## PART B: Step 1 Compilation Commands With Exact Paths
+## 📍 Windows Drive E:\ Mapping in Ubuntu Linux (WSL2)
 
-Aapke Linux Terminal mein execution ka complete step-by-step path:
+Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
+- Windows Path: `E:\android`
+- Ubuntu Linux Path: `/mnt/e/android`
 
-### 📍 Phase 1: Home Directory & Project Folder Setup
-- **Linux Current Path**: `/home/garv/` (`~`)
+---
+
+## ⚙️ PART 2: Modified Commands With Exact E:\ Drive Paths (`/mnt/e/android`)
+
+Execute these commands inside your **Ubuntu Linux Terminal**:
+
+### 📍 Phase 1: Creating Workspace Folder on E:\ Drive
+- **Target Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Home directory mein jayein
-  cd ~
+  # 1. E:\ drive par android aur aosp folder banayein
+  mkdir -p /mnt/e/android/aosp
 
-  # AOSP Source code ke liye folder banayein
-  mkdir -p ~/aosp
-
-  # aosp folder ke andar jayein
-  cd ~/aosp
+  # 2. aosp folder ke andar jayein
+  cd /mnt/e/android/aosp
   ```
-- **New Working Path**: `/home/garv/aosp/`
+- **Current Working Path**: `/mnt/e/android/aosp`
 
 ---
 
 ### 📍 Phase 2: Installing Linux Build Toolchain
-- **Path**: `/home/garv/aosp/`
+- **Current Working Path**: `/mnt/e/android/aosp`
 - **Command**:
   ```bash
   sudo apt update && sudo apt install -y \
@@ -56,21 +44,21 @@ Aapke Linux Terminal mein execution ka complete step-by-step path:
 
 ---
 
-### 📍 Phase 3: Syncing AOSP Base Source Code
-- **Path**: `/home/garv/aosp/`
+### 📍 Phase 3: Syncing AOSP Base Source Code on E:\ Drive
+- **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
   # Manifest initialize karein
   repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
 
-  # Source code sync karein
+  # Full source code E:\ drive par sync/download karein
   repo sync -c -j$(nproc)
   ```
 
 ---
 
-### 📍 Phase 4: Environment Setup & Target Selection
-- **Path**: `/home/garv/aosp/`
+### 📍 Phase 4: Build Environment & Target Select Karna
+- **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
   # Build scripts setup karein
@@ -83,23 +71,43 @@ Aapke Linux Terminal mein execution ka complete step-by-step path:
 ---
 
 ### 📍 Phase 5: Compiling Custom System Images
-- **Path**: `/home/garv/aosp/`
+- **Current Working Path**: `/mnt/e/android/aosp`
 - **Command**:
   ```bash
   mka -j$(nproc)
   ```
-- **Compilation Progress**: Terminal par `[100% 125432/125432] Install: out/target/product/emulator_x86_64/system.img` dikhega.
+- **Progress Output**: Terminal par `[100% 125432/125432] Install: out/target/product/emulator_x86_64/system.img` show karega.
 
 ---
 
-### 📍 Phase 6: Generated Output Files & Paths
-Build successful hone par aapke exact Linux path:
-`/home/garv/aosp/out/target/product/emulator_x86_64/`
+### 📍 Phase 6: Output Files ka Exact Path (E:\ Drive)
 
-Is folder mein 4 custom image files generate hongi:
-1. `/home/garv/aosp/out/target/product/emulator_x86_64/system.img`
-2. `/home/garv/aosp/out/target/product/emulator_x86_64/vendor.img`
-3. `/home/garv/aosp/out/target/product/emulator_x86_64/ramdisk.img`
-4. `/home/garv/aosp/out/target/product/emulator_x86_64/kernel-ranchu`
+Compilation successful hone par aapke 4 custom system image files is exact path par generate hongi:
 
-In 4 files ko Step 2 ke mutabiq Windows SDK path mein copy karke Android Studio Emulator mein run kiya jayega!
+- **Ubuntu Linux Path**: `/mnt/e/android/aosp/out/target/product/emulator_x86_64/`
+- **Windows File Explorer Path**: `E:\android\aosp\out\target\product\emulator_x86_64\`
+
+Generated Files:
+1. `E:\android\aosp\out\target\product\emulator_x86_64\system.img`
+2. `E:\android\aosp\out\target\product\emulator_x86_64\vendor.img`
+3. `E:\android\aosp\out\target\product\emulator_x86_64\ramdisk.img`
+4. `E:\android\aosp\out\target\product\emulator_x86_64\kernel-ranchu`
+
+---
+
+## 📍 Step 2 Setup on Windows (Copying Files to Windows SDK)
+
+Since C:\ drive is low on space, you can also store your Android Studio custom system image directory on **E:\** drive or Android Studio SDK path:
+
+```cmd
+mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
+```
+Or create a symlink pointing to `E:\android\sdk\system-images\...`.
+Copy the 4 files from `E:\android\aosp\out\target\product\emulator_x86_64\` into the system image folder and add `source.properties`:
+```ini
+Pkg.Revision=1
+Pkg.Desc=Custom Multi-OS Android System Image
+SystemImage.Abi=x86_64
+SystemImage.TagId=default
+AndroidVersion.ApiLevel=34
+```
