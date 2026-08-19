@@ -16,19 +16,23 @@ Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 
 Execute these commands inside your **Ubuntu Linux Terminal**:
 
-### 📍 Phase 1: Creating Workspace Folder & Fixing Drive Permissions
+### 📍 Phase 1: Creating Workspace Folder, Git Identity & Drive Permissions
 - **Target Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. Enable Linux metadata permissions on E:\ drive
+  # 1. Configure Git Identity (Required by repo init)
+  git config --global user.email "garvzenith@gmail.com"
+  git config --global user.name "Garv Zenith"
   git config --global core.filemode false
+
+  # 2. Enable Linux metadata permissions on E:\ drive
   sudo umount /mnt/e 2>/dev/null
   sudo mount -t drvfs E: /mnt/e -o metadata
 
-  # 2. E:\ drive par android aur aosp folder banayein
+  # 3. E:\ drive par android aur aosp folder banayein
   mkdir -p /mnt/e/android/aosp
 
-  # 3. aosp folder ke andar jayein
+  # 4. aosp folder ke andar jayein
   cd /mnt/e/android/aosp
   ```
 - **Current Working Path**: `/mnt/e/android/aosp`
