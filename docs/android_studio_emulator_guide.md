@@ -11,8 +11,8 @@ Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 - Ubuntu Linux Path: `/mnt/e/android`
 
 > [!IMPORTANT]
-> **WSL2 NTFS Permission Fix (`core.filemode` & `chmod` error fix)**
-> Before running `repo init` on an external Windows drive (`/mnt/e/`), you must enable Linux metadata on `/mnt/e/`:
+> **WSL2 NTFS Permission & Repo Init Fix**
+> Before running `repo init` on an external Windows drive (`/mnt/e/`), ensure Linux metadata is mounted and `--no-repo-verify` flag is used:
 > ```bash
 > git config --global core.filemode false
 > sudo umount /mnt/e 2>/dev/null
@@ -62,11 +62,11 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Clean failed temporary repo attempts
+  # Clean old corrupted repo state
   rm -rf /mnt/e/android/aosp/.repo
 
-  # Manifest initialize karein
-  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
+  # Manifest initialize (with --no-repo-verify)
+  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --no-repo-verify
 
   # Full source code E:\ drive par sync/download karein
   repo sync -c -j$(nproc)
