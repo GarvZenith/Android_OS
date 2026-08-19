@@ -4,11 +4,20 @@ This guide provides a detailed walkthrough of **STEP 1** customized specifically
 
 ---
 
-## 📍 Windows Drive E:\ Mapping in Ubuntu Linux (WSL2)
+## 📍 Windows Drive E:\ Mapping & WSL2 Metadata Configuration
 
 Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 - Windows Path: `E:\android`
 - Ubuntu Linux Path: `/mnt/e/android`
+
+> [!IMPORTANT]
+> **WSL2 NTFS Permission Fix (`core.filemode` & `chmod` error fix)**
+> Before running `repo init` on an external Windows drive (`/mnt/e/`), you must enable Linux metadata on `/mnt/e/`:
+> ```bash
+> git config --global core.filemode false
+> sudo umount /mnt/e 2>/dev/null
+> sudo mount -t drvfs E: /mnt/e -o metadata
+> ```
 
 ---
 
@@ -16,21 +25,26 @@ Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
 
 Execute these commands inside your **Ubuntu Linux Terminal**:
 
-### 📍 Phase 1: Creating Workspace Folder on E:\ Drive
+### 📍 Phase 1: Creating Workspace Folder & Fixing Drive Permissions
 - **Target Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. E:\ drive par android aur aosp folder banayein
+  # 1. Enable Linux metadata permissions on E:\ drive
+  git config --global core.filemode false
+  sudo umount /mnt/e 2>/dev/null
+  sudo mount -t drvfs E: /mnt/e -o metadata
+
+  # 2. E:\ drive par android aur aosp folder banayein
   mkdir -p /mnt/e/android/aosp
 
-  # 2. aosp folder ke andar jayein
+  # 3. aosp folder ke andar jayein
   cd /mnt/e/android/aosp
   ```
 - **Current Working Path**: `/mnt/e/android/aosp`
 
 ---
 
-### 📍 Phase 2: Installing Linux Build Toolchain (Updated Package List)
+### 📍 Phase 2: Installing Linux Build Toolchain
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Command**:
   ```bash
@@ -48,6 +62,9 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
+  # Clean failed temporary repo attempts
+  rm -rf /mnt/e/android/aosp/.repo
+
   # Manifest initialize karein
   repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
 
