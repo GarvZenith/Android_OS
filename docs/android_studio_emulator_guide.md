@@ -4,11 +4,11 @@ This guide provides a detailed walkthrough of **STEP 1** customized specifically
 
 ---
 
-## 📍 Windows Drive E:\ Mapping & Disk Space Management
+## 📍 Windows Drive E:\ Mapping in Ubuntu Linux (WSL2)
 
-> [!TIP]
-> **Post-Compilation Cleanup Policy**
-> Once the custom OS compilation is complete and output images (`system.img`, `vendor.img`, etc.) are copied to Android Studio SDK or saved as GitHub Releases, the entire raw source code directory `E:\android\aosp` (150-200 GB) **can be deleted completely** to free up disk space. Your custom OS emulator will continue to run independently.
+Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
+- Windows Path: `E:\android`
+- Ubuntu Linux Path: `/mnt/e/android`
 
 ---
 
@@ -16,58 +16,55 @@ This guide provides a detailed walkthrough of **STEP 1** customized specifically
 
 Execute these commands inside your **Ubuntu Linux Terminal**:
 
-### 📍 Phase 1: Workspace Folder & Drive Permissions
+### 📍 Phase 1: Creating Workspace Folder on E:\ Drive
 - **Target Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. Configure Git Identity
-  git config --global user.email "garvv87@gmail.com"
-  git config --global user.name "GarvZenith"
-  git config --global core.filemode false
+  # 1. E:\ drive par android aur aosp folder banayein
+  mkdir -p /mnt/e/android/aosp
 
-  # 2. Enable Linux metadata permissions on E:\ drive
-  sudo umount /mnt/e 2>/dev/null
-  sudo mount -t drvfs E: /mnt/e -o metadata
-
-  # 3. Enter workspace directory
+  # 2. aosp folder ke andar jayein
   cd /mnt/e/android/aosp
   ```
+- **Current Working Path**: `/mnt/e/android/aosp`
 
 ---
 
-### 📍 Phase 2: Installing Standalone Official Repo Tool
+### 📍 Phase 2: Installing Linux Build Toolchain
 - **Current Working Path**: `/mnt/e/android/aosp`
-- **Commands**:
+- **Command**:
   ```bash
-  # Install Google Standalone Repo Tool
-  sudo curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo
-  sudo chmod a+rx /usr/local/bin/repo
+  sudo apt update && sudo apt install -y \
+      git-core gnupg flex bison build-essential zip curl zlib1g-dev \
+      gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
+      x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
+      libxml2-utils xsltproc unzip fontconfig openjdk-17-jdk python3 \
+      rsync schedtool ccache libssl-dev repo
   ```
 
 ---
 
-### 📍 Phase 3: Finalizing 100% Checkout & Bazel Repair
+### 📍 Phase 3: Syncing AOSP Base Source Code on E:\ Drive
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Clean corrupted build/bazel folder from previous I/O error
-  rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git 2>/dev/null
+  # Manifest initialize karein
+  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
 
-  # Finalize local checkout and fix remaining network retries (Quick ~2 min execution)
-  cd /mnt/e/android/aosp
-  /usr/local/bin/repo sync -c --force-sync -j4
+  # Full source code E:\ drive par sync/download karein
+  repo sync -c -j$(nproc)
   ```
 
 ---
 
-### 📍 Phase 4: Build Environment & Target Selection
+### 📍 Phase 4: Build Environment & Target Select Karna
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Build scripts setup
+  # Build scripts setup karein
   source build/envsetup.sh
 
-  # Emulator target select
+  # Emulator target select karein
   lunch sdk_gphone64_x86_64-userdebug
   ```
 
@@ -79,11 +76,38 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
   ```bash
   mka -j$(nproc)
   ```
+- **Progress Output**: Terminal par `[100% 125432/125432] Install: out/target/product/emulator_x86_64/system.img` show karega.
 
 ---
 
-### 📍 Phase 6: Output Files & Cleanup
-After compilation completes:
-1. Compiled Output Images: `E:\android\aosp\out\target\product\emulator_x86_64\`
-2. Copy `system.img`, `vendor.img`, `ramdisk.img`, `kernel-ranchu` to Android Studio SDK.
-3. **Optional Cleanup**: Delete `E:\android\aosp` folder to reclaim ~200 GB disk space.
+### 📍 Phase 6: Output Files ka Exact Path (E:\ Drive)
+
+Compilation successful hone par aapke 4 custom system image files is exact path par generate hongi:
+
+- **Ubuntu Linux Path**: `/mnt/e/android/aosp/out/target/product/emulator_x86_64/`
+- **Windows File Explorer Path**: `E:\android\aosp\out\target\product\emulator_x86_64\`
+
+Generated Files:
+1. `E:\android\aosp\out\target\product\emulator_x86_64\system.img`
+2. `E:\android\aosp\out\target\product\emulator_x86_64\vendor.img`
+3. `E:\android\aosp\out\target\product\emulator_x86_64\ramdisk.img`
+4. `E:\android\aosp\out\target\product\emulator_x86_64\kernel-ranchu`
+
+---
+
+## 📍 Step 2 Setup on Windows (Copying Files to Windows SDK)
+
+Since C:\ drive is low on space, you can also store your Android Studio custom system image directory on **E:\** drive or Android Studio SDK path:
+
+```cmd
+mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
+```
+Or create a symlink pointing to `E:\android\sdk\system-images\...`.
+Copy the 4 files from `E:\android\aosp\out\target\product\emulator_x86_64\` into the system image folder and add `source.properties`:
+```ini
+Pkg.Revision=1
+Pkg.Desc=Custom Multi-OS Android System Image
+SystemImage.Abi=x86_64
+SystemImage.TagId=default
+AndroidVersion.ApiLevel=34
+```
