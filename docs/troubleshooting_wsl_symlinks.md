@@ -1,42 +1,31 @@
-# Troubleshooting WSL2 NTFS Symlinks & Repo Sync Errors
+# Troubleshooting WSL2 Symlinks & Corrupted Repo Cleanup
 
-This document explains how to resolve the **Symlink Error** (`Cannot symlink ...`) and **DNS/Network Error** (`Could not resolve host`) when syncing AOSP on a mounted Windows drive (`/mnt/e/android/aosp`).
-
----
-
-## 🛠️ FIX 1: Enable Linux Symlink & Metadata Support on E:\ Drive
-
-By default, mounted Windows drives (`/mnt/e/`) inside WSL2 block Linux symlinks unless `metadata` options are enabled in `/etc/wsl.conf`.
-
-### Step-by-Step Fix:
-
-1. Open your **Ubuntu Linux Terminal** and run:
-   ```bash
-   sudo bash -c 'cat <<EOF > /etc/wsl.conf
-   [automount]
-   enabled = true
-   options = "metadata,umask=22,fmask=11"
-   EOF'
-   ```
-
-2. Close the Ubuntu Terminal.
-
-3. Open **Windows PowerShell** (Run as Administrator) and restart WSL2:
-   ```powershell
-   wsl --shutdown
-   ```
-
-4. Re-open **Ubuntu Linux Terminal** (or type `wsl` in PowerShell).
+This document provides exact steps to fix `Cannot symlink ...` errors and clean up corrupted sub-repositories (like `build/bazel`) when syncing AOSP on Windows `E:\` drive mounted inside WSL2.
 
 ---
 
-## 🛠️ FIX 2: Resume & Force Repo Sync
+## 🛠️ Step-by-Step Resolution
 
-Now return to your source code directory and resume the sync:
-
+### Step 1: Create /etc/wsl.conf in Ubuntu Terminal
+Run this command in Ubuntu Linux terminal:
 ```bash
-cd /mnt/e/android/aosp
-repo sync -c -j4 --fail-fast --force-sync
+sudo bash -c 'cat <<EOF > /etc/wsl.conf
+[automount]
+enabled = true
+options = "metadata,umask=22,fmask=11"
+EOF'
 ```
 
-This will fix the symlinks and resume downloading the remaining repositories smoothly!
+### Step 2: Shutdown WSL2 in Windows PowerShell
+Close Ubuntu Terminal, open Windows PowerShell and run:
+```powershell
+wsl --shutdown
+```
+
+### Step 3: Remove Corrupted Repositories & Force Sync
+Re-open Ubuntu Terminal and run:
+```bash
+cd /mnt/e/android/aosp
+rm -rf build/bazel
+repo sync -c -j4 --force-sync
+```
