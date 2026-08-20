@@ -4,11 +4,12 @@ This guide provides a detailed walkthrough of **STEP 1** customized specifically
 
 ---
 
-## 📍 Windows Drive E:\ Mapping & WSL2 Metadata Configuration
+## 📍 Windows Drive E:\ Mapping & Disk Space Requirements
 
-Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
-- Windows Path: `E:\android`
-- Ubuntu Linux Path: `/mnt/e/android`
+> [!CAUTION]
+> **Disk Space Requirement**
+> A full AOSP source code checkout requires **150 GB to 250 GB of free disk space** on Drive E:\.
+> If disk space is low, use the **Lightweight Shallow Sync** command (`--depth=1 --no-clone-bundle`).
 
 ---
 
@@ -43,7 +44,7 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. Install Google Standalone Repo Tool (Fixes /usr/bin/repo launcher warning)
+  # 1. Install Google Standalone Repo Tool
   sudo curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo
   sudo chmod a+rx /usr/local/bin/repo
 
@@ -58,16 +59,16 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Manifest Initialization & Syncing AOSP Base Source Code on E:\ Drive
+### 📍 Phase 3: Lightweight Shallow Syncing AOSP Base Source Code on E:\ Drive
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Clean corrupted repo state & initialize clean manifest
+  # Clean old build artifacts & initialize clean manifest
   cd /mnt/e/android/aosp && rm -rf .repo
-  /usr/local/bin/repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --no-repo-verify
+  /usr/local/bin/repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --no-repo-verify --depth=1
 
-  # Full source code E:\ drive par sync/download karein
-  /usr/local/bin/repo sync -c -j$(nproc)
+  # Lightweight shallow sync (Saves ~60% disk space)
+  /usr/local/bin/repo sync -c --no-clone-bundle --no-tags -j4
   ```
 
 ---
