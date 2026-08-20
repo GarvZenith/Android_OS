@@ -46,14 +46,14 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Resuming Download Sync (Force Recovery for Broken Symlinks)
+### 📍 Phase 3: Resuming Download Sync & Finalizing 100% Sync
 - **Current Working Path**: `/mnt/e/android/aosp`
-- **Command**:
+- **Commands**:
   ```bash
-  # Clean corrupted build/bazel folder from previous I/O error
-  rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git
+  # Clean corrupted build/bazel folder if previously hit by I/O error
+  rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git 2>/dev/null
 
-  # Resume download sync with --force-sync to recover any broken checkouts automatically
+  # Finalize download sync to reach 100% (Handles network retries automatically)
   cd /mnt/e/android/aosp
   /usr/local/bin/repo sync -c --force-sync -j4
   ```
