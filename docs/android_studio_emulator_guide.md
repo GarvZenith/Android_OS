@@ -46,15 +46,20 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Finalizing Local Tree Checkout (--local-only)
+### 📍 Phase 3: Finalizing Sync & Fixing Failed Repositories / Symlinks
 - **Current Working Path**: `/mnt/e/android/aosp`
-- **Commands**:
+- **Context**:
+  Most of the heavy codebase (frameworks, art, bionic, etc.) is already downloaded. A few small repositories (e.g. rust crates, prebuilts) were skipped due to temporary internet disconnection and `BUILD` symlink conflicts.
+- **Fix & Final Sync Commands**:
   ```bash
-  # 1. Clean corrupted build/bazel folder from previous I/O error
-  cd /mnt/e/android/aosp && rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git
+  cd /mnt/e/android/aosp
 
-  # 2. Finalize local checkout (reuses downloaded 100% repos without re-downloading)
-  /usr/local/bin/repo sync -c --force-sync -j4 --local-only
+  # 1. Remove conflicting BUILD symlink and corrupted bazel repo
+  rm -f /mnt/e/android/aosp/BUILD
+  rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git 2>/dev/null
+
+  # 2. Run final force sync to checkout the working tree & fetch remaining small packages
+  /usr/local/bin/repo sync -c --force-sync --no-clone-bundle -j8
   ```
 
 ---
