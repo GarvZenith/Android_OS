@@ -1,26 +1,24 @@
-# Fixing Git Lock Ref Errors in Repo Workspace
+# Fixing Manifest Git Ref Directory Conflicts in Repo
 
 This document explains how to resolve:
-`error: cannot lock ref 'refs/remotes/m/android-14.0.0_r1': unable to create directory for ...`
+`error: cannot lock ref 'refs/remotes/m/android-14.0.0_r1': unable to create directory for /mnt/e/android/aosp/.repo/manifests.git/refs/remotes/m/android-14.0.0_r1`
 
 ---
 
 ## 🔍 Root Cause Analysis
 
-During interrupted `repo sync` runs, Git creates loose ref files under `.repo/repo/.git/refs/remotes/m`. If a file named `m` is created instead of a directory `m/`, Git fails with `unable to create directory` when trying to write manifest refs.
+A loose Git reference file named `m` exists in `.repo/manifests.git/refs/remotes/m`. Because a file named `m` exists, Git cannot create a directory named `m/` to write the target ref `m/android-14.0.0_r1`.
 
 ---
 
-## 🛠️ Instant Fix
+## 🛠️ Instant Resolution
 
-Run the following commands in **Ubuntu Terminal**:
+Run the following command in **Ubuntu Terminal**:
 
 ```bash
 cd /mnt/e/android/aosp
-
-# 1. Clean stale manifest git refs
-rm -rf .repo/repo/.git/refs/remotes/m* .repo/manifests.git/refs/remotes/m*
-
-# 2. Resume sync
+rm -rf .repo/manifests.git/refs/remotes .repo/repo/.git/refs/remotes
 repo sync -c -j4 --force-sync
 ```
+
+This removes the conflicting file `m` and allows Git to create the `m/` directory cleanly.
