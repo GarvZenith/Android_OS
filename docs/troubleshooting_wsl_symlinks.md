@@ -1,33 +1,36 @@
-# Resolving Hidden .repo Directory Ownership & Permission Errors
+# Manually Resetting Permissions via Windows File Explorer & PowerShell
 
-This document explains how to fix:
-`PermissionError: [Errno 13] Permission denied: '/mnt/e/android/aosp/.repo/manifests.git'`
-
----
-
-## 🔍 Root Cause Analysis
-
-Because Linux dot-directories (hidden folders starting with `.`) like `.repo/` are omitted by some wildcard operations, files inside `.repo/manifests.git` retained `root` ownership. When running `repo init` as user `garv`, Linux denied write permissions to create `.repo/manifests.git`.
+This document explains how to manually grant Full Control permissions on `E:\android\aosp` directly from Windows without waiting for Linux `chown`.
 
 ---
 
-## 🛠️ Complete Permission Reset & Manifest Re-init
+## 🛠️ Method 1: Windows File Explorer GUI (Manual Permissions)
 
-Run the following commands in **Ubuntu Terminal**:
+1. Open **Windows File Explorer** (`Win + E`) and navigate to `E:\android`.
+2. Right-click the **`aosp`** folder -> Click **Properties**.
+3. Uncheck **Read-only (Only applies to files in folder)**.
+4. Click **Apply** -> Select *"Apply changes to this folder, subfolders and files"* -> Click **OK**.
+5. Click the **Security** tab -> Click **Edit**.
+6. Select **Users** (or **Everyone**) -> Check **Full control** (Allow).
+7. Click **Apply** -> Click **OK**.
+
+---
+
+## 🛠️ Method 2: Windows PowerShell Admin Command (Fastest 5-Second Fix)
+
+Open **Windows PowerShell (Run as Administrator)** and run:
+
+```powershell
+icacls "E:\android\aosp" /grant Everyone:(OI)(CI)F /T
+```
+
+*Output*: `Successfully processed all files.`
+
+After running either method, re-open **Ubuntu Terminal** and run:
 
 ```bash
 cd /mnt/e/android/aosp
-
-# 1. Reset ownership and permissions specifically on hidden .repo folder
-sudo chown -R garv:garv /mnt/e/android/aosp/.repo
-sudo chmod -R 777 /mnt/e/android/aosp/.repo
-
-# 2. Clean stale manifests metadata
 rm -rf .repo/manifests .repo/manifests.git .repo/manifest.xml
-
-# 3. Re-initialize manifest
 repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
-
-# 4. Resume sync with existing downloaded source tree
 repo sync -c -j4 --force-sync
 ```
