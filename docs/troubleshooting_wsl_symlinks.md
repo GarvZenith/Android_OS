@@ -1,28 +1,21 @@
-# Resolving WSL2 Permission Denied (Errno 13) on Mounted Drives
+# Resolving AOSP Workspace Permissions & Parent Directory Ownership
 
-This document explains how to resolve `PermissionError: [Errno 13] Permission denied: '/mnt/e/android/aosp/build'`.
-
----
-
-## 🔍 Root Cause Analysis
-
-When running `repo sync` under WSL2 without initial metadata options, certain directories (like `/mnt/e/android/aosp/build`) get assigned read-only Windows file locks or root ownership. When `repo sync` tries to checkout or modify files inside `build`, it receives a `Permission denied` error.
+This document explains how to resolve ownership and permission errors across the entire AOSP workspace on `/mnt/e/android/aosp`.
 
 ---
 
-## 🛠️ Instant Permission Fix
+## 🛠️ Full Workspace Permission Fix
 
 Run the following commands in **Ubuntu Terminal**:
 
 ```bash
-# 1. Reset ownership to user garv
-sudo chown -R garv:garv /mnt/e/android/aosp/build
+# 1. Reset ownership for the whole AOSP workspace
+sudo chown -R garv:garv /mnt/e/android/aosp
 
-# 2. Grant full read/write/execute permissions
-sudo chmod -R 777 /mnt/e/android/aosp/build
+# 2. Grant full read/write permissions
+sudo chmod -R 777 /mnt/e/android/aosp
 
-# 3. Remove lock files and resume sync
-sudo rm -rf /mnt/e/android/aosp/BUILD /mnt/e/android/aosp/build/bazel
+# 3. Resume sync
 cd /mnt/e/android/aosp
 repo sync -c -j4 --force-sync
 ```
