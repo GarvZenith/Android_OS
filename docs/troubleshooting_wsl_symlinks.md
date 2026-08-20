@@ -1,31 +1,42 @@
-# Troubleshooting WSL2 Symlinks & Corrupted Repo Cleanup
+# Fixing NTFS Case Insensitivity & Symlink Collision in WSL2
 
-This document provides exact steps to fix `Cannot symlink ...` errors and clean up corrupted sub-repositories (like `build/bazel`) when syncing AOSP on Windows `E:\` drive mounted inside WSL2.
+This document explains the root cause of the persistent error:
+`error: Cannot symlink /mnt/e/android/aosp/BUILD to build/bazel/bazel.BUILD`
 
 ---
 
-## 🛠️ Step-by-Step Resolution
+## 🔍 Root Cause Analysis
 
-### Step 1: Create /etc/wsl.conf in Ubuntu Terminal
-Run this command in Ubuntu Linux terminal:
-```bash
-sudo bash -c 'cat <<EOF > /etc/wsl.conf
-[automount]
-enabled = true
-options = "metadata,umask=22,fmask=11"
-EOF'
-```
+AOSP source tree contains two colliding entries at the root directory:
+1. `build/` (lowercase directory containing Bazel and build tools)
+2. `BUILD` (uppercase symlink pointing to Bazel config)
 
-### Step 2: Shutdown WSL2 in Windows PowerShell
-Close Ubuntu Terminal, open Windows PowerShell and run:
+By default, Windows NTFS filesystems (Drives `C:\`, `E:\`) are **case-insensitive**. Windows treats `build` and `BUILD` as the exact same filename. When WSL2 attempts to create the `BUILD` symlink alongside the existing `build/` directory, NTFS blocks the creation with a symlink collision error.
+
+---
+
+## 🛠️ Complete 2-Step Solution
+
+### STEP 1: Enable NTFS Case Sensitivity on E:\android\aosp (Windows PowerShell)
+
+Open **Windows PowerShell as Administrator** and run:
+
 ```powershell
-wsl --shutdown
+fsutil.exe file setCaseSensitiveInfo "E:\android\aosp" enable
 ```
 
-### Step 3: Remove Corrupted Repositories & Force Sync
-Re-open Ubuntu Terminal and run:
+*Output should say*: `Case sensitive attribute on directory E:\android\aosp is enabled.`
+
+---
+
+### STEP 2: Clean Bazel and Resume Sync (Ubuntu Terminal)
+
+Open **Ubuntu Terminal** and run:
+
 ```bash
 cd /mnt/e/android/aosp
-rm -rf build/bazel
+rm -rf build/bazel BUILD
 repo sync -c -j4 --force-sync
 ```
+
+This completely resolves the NTFS name collision and allows `repo sync` to finish 100%!
