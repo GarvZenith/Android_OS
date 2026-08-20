@@ -46,16 +46,15 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
 
 ---
 
-### 📍 Phase 3: Resuming Download Sync & Finalizing 100% Sync
+### 📍 Phase 3: Finalizing Local Tree Checkout (--local-only)
 - **Current Working Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # Clean corrupted build/bazel folder if previously hit by I/O error
-  rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git 2>/dev/null
+  # 1. Clean corrupted build/bazel folder from previous I/O error
+  cd /mnt/e/android/aosp && rm -rf build/bazel .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git
 
-  # Finalize download sync to reach 100% (Handles network retries automatically)
-  cd /mnt/e/android/aosp
-  /usr/local/bin/repo sync -c --force-sync -j4
+  # 2. Finalize local checkout (reuses downloaded 100% repos without re-downloading)
+  /usr/local/bin/repo sync -c --force-sync -j4 --local-only
   ```
 
 ---
