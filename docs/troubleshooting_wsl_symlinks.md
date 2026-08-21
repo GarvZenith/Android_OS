@@ -1,40 +1,25 @@
-# Fixing PowerShell Syntax for icacls Permissions
+# Fixing Corrupted Bazel Git Cache & Symlink Error
 
-This document provides the exact syntax for `icacls` in Windows PowerShell to avoid `The term 'OI' is not recognized` error.
-
----
-
-## 🛠️ Corrected Windows PowerShell Admin Command
-
-In PowerShell, parentheses `()` must be enclosed in quotes `"Everyone:(OI)(CI)F"`.
-
-Run in **Windows PowerShell (Run as Administrator)**:
-
-```powershell
-icacls "E:\android\aosp" /grant "Everyone:(OI)(CI)F" /T
-```
-
-*Output*: `Successfully processed all files.`
+This document explains the exact reason for the error:
+`error: Cannot checkout platform/build/bazel: NoManifestException: GitCommandError ...`
 
 ---
 
-## 🛠️ Alternative: Windows Command Prompt (cmd)
+## 🔍 Exact Meaning of the Error
 
-In standard **cmd.exe (Run as Administrator)**:
-
-```cmd
-icacls "E:\android\aosp" /grant Everyone:(OI)(CI)F /T
-```
+1. **`Cannot symlink ... BUILD to build/bazel/bazel.BUILD`**: AOSP root contains a file `BUILD` and a folder `build/`. On Windows NTFS drives, Windows treats uppercase `BUILD` and lowercase `build` as the same name.
+2. **`unparseable HEAD ... not a git repository`**: During an interrupted sync, the git metadata cache for the `build/bazel` repository (`.repo/projects/build/bazel.git`) became corrupted.
 
 ---
 
-## 🚀 Resume Sync in Ubuntu Terminal
+## 🛠️ Instant 1-Line Fix: Clean Corrupted Bazel Cache & Resume Sync
 
-Re-open **Ubuntu Linux Terminal** and run:
+Run the following command in **Ubuntu Terminal**:
 
 ```bash
 cd /mnt/e/android/aosp
-rm -rf .repo/manifests .repo/manifests.git .repo/manifest.xml
-repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
+rm -rf build/bazel BUILD .repo/projects/build/bazel.git .repo/project-objects/platform/build/bazel.git
 repo sync -c -j4 --force-sync
 ```
+
+This deletes the single corrupted `build/bazel` cache (takes 2 seconds) without touching your 100GB downloaded code, allowing `repo sync` to re-download `bazel` cleanly and finish!
