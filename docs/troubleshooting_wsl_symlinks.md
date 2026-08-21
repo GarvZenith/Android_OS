@@ -1,26 +1,31 @@
-# Fixing Git Corrupt Index File Errors (Bad Signature 0x00000000)
+# Fixing Git RPC Failed & HTTP/2 Stream Disconnects on Large Repositories
 
 This document explains how to resolve:
-`error: bad signature 0x00000000`
-`fatal: index file corrupt`
-`error: kernel/prebuilts/common-modules/virtual-device/5.10/x86-64/...`
+`error: RPC failed; curl 92 HTTP/2 stream 5 was not closed cleanly: INTERNAL_ERROR (err 2)`
+`fatal: fetch-pack: invalid index-pack output`
 
 ---
 
 ## 🔍 Root Cause Analysis
-During a previous network interruption, the `.git/index` file inside `kernel/prebuilts/common-modules/virtual-device/5.10/x86-64/` was written with zeroed bytes (bad signature `0x00000000`).
+
+Certain prebuilt kernel modules in AOSP (like `kernel/prebuilts/common-modules/virtual-device/5.15/arm64`) are **3.88 GB** in size. When downloading such large repositories over HTTP/2, Git's default buffer limit causes `curl 92` stream resets.
 
 ---
 
-## 🛠️ Instant Fix (Delete Corrupt Index & Resume Sync)
+## 🛠️ Instant Fix: Increase Git Buffer & Use HTTP/1.1
 
-Run the following command in **Ubuntu Terminal**:
+Run the following commands in **Ubuntu Terminal**:
 
 ```bash
+# 1. Increase Git POST buffer to 1 GB
+git config --global http.postBuffer 1048576000
+
+# 2. Force Git to use stable HTTP/1.1
+git config --global http.version HTTP/1.1
+
+# 3. Resume sync
 cd /mnt/e/android/aosp
-rm -f kernel/prebuilts/common-modules/virtual-device/5.10/x86-64/.git/index
-rm -rf kernel/prebuilts/common-modules/virtual-device/5.10/x86-64 .repo/projects/kernel/prebuilts/common-modules/virtual-device/5.10/x86-64.git
 repo sync -c -j4 --force-sync
 ```
 
-This cleans the single corrupt git index file (takes 5 seconds) without affecting the 74% downloaded codebase, allowing `repo sync` to finish 100%!
+This prevents large 3.88 GB package stream resets and allows `repo sync` to finish smoothly.
