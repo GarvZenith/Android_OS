@@ -1,32 +1,36 @@
-# Manually Resetting Permissions via Windows File Explorer & PowerShell
+# Fixing PowerShell Syntax for icacls Permissions
 
-This document explains how to manually grant Full Control permissions on `E:\android\aosp` directly from Windows without waiting for Linux `chown`.
-
----
-
-## 🛠️ Method 1: Windows File Explorer GUI (Manual Permissions)
-
-1. Open **Windows File Explorer** (`Win + E`) and navigate to `E:\android`.
-2. Right-click the **`aosp`** folder -> Click **Properties**.
-3. Uncheck **Read-only (Only applies to files in folder)**.
-4. Click **Apply** -> Select *"Apply changes to this folder, subfolders and files"* -> Click **OK**.
-5. Click the **Security** tab -> Click **Edit**.
-6. Select **Users** (or **Everyone**) -> Check **Full control** (Allow).
-7. Click **Apply** -> Click **OK**.
+This document provides the exact syntax for `icacls` in Windows PowerShell to avoid `The term 'OI' is not recognized` error.
 
 ---
 
-## 🛠️ Method 2: Windows PowerShell Admin Command (Fastest 5-Second Fix)
+## 🛠️ Corrected Windows PowerShell Admin Command
 
-Open **Windows PowerShell (Run as Administrator)** and run:
+In PowerShell, parentheses `()` must be enclosed in quotes `"Everyone:(OI)(CI)F"`.
+
+Run in **Windows PowerShell (Run as Administrator)**:
 
 ```powershell
-icacls "E:\android\aosp" /grant Everyone:(OI)(CI)F /T
+icacls "E:\android\aosp" /grant "Everyone:(OI)(CI)F" /T
 ```
 
 *Output*: `Successfully processed all files.`
 
-After running either method, re-open **Ubuntu Terminal** and run:
+---
+
+## 🛠️ Alternative: Windows Command Prompt (cmd)
+
+In standard **cmd.exe (Run as Administrator)**:
+
+```cmd
+icacls "E:\android\aosp" /grant Everyone:(OI)(CI)F /T
+```
+
+---
+
+## 🚀 Resume Sync in Ubuntu Terminal
+
+Re-open **Ubuntu Linux Terminal** and run:
 
 ```bash
 cd /mnt/e/android/aosp
