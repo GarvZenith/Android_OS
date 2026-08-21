@@ -1,11 +1,12 @@
-# Fixing BUILD Directory Collision (-bash: BUILD: Is a directory)
+# Resolving NotADirectoryError: [Errno 20] on build/ Subdirectories
 
-This document explains how to resolve `-bash: BUILD: Is a directory` when creating the root `BUILD` file.
+This document explains how to resolve:
+`error: Cannot checkout platform/build/... NotADirectoryError: [Errno 20] Not a directory: '/mnt/e/android/aosp/build/...'`
 
 ---
 
-## 🔍 Cause
-An empty directory named `BUILD` was created in an earlier interrupted run. The shell cannot redirect text into a directory object.
+## 🔍 Root Cause Analysis
+During an earlier step, a file named `build` was created instead of a directory. When `repo sync` attempts to checkout submodules inside `build/` (like `build/make`, `build/soong`, `build/bazel`), Linux returns `Not a directory`.
 
 ---
 
@@ -15,7 +16,9 @@ Run the following command in **Ubuntu Terminal**:
 
 ```bash
 cd /mnt/e/android/aosp
-rm -rf BUILD
-echo "build/bazel/bazel.BUILD" > BUILD
+rm -rf build BUILD
+mkdir -p build
 repo sync -c -l --no-tags --force-sync
 ```
+
+This removes the file collision, creates `build/` as a proper directory, and completes the local checkout cleanly!
