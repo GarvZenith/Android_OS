@@ -1,37 +1,81 @@
-# Step 1 Complete Walkthrough: WSL2 Ubuntu Setup on E:\ Drive & AOSP Compilation
+# E: Drive Setup & WSL2 NTFS Permission Guide for Custom Android OS
 
-This guide provides a detailed walkthrough of **STEP 1** customized specifically for storing and building the Custom Android OS on **Drive E:\** (`E:\android` / `/mnt/e/android`) to save space on Drive C:\.
-
----
-
-## 📍 Windows Drive E:\ Mapping in Ubuntu Linux (WSL2)
-
-Ubuntu Linux terminal mounts your Windows **E:\** drive under `/mnt/e/`.
-- Windows Path: `E:\android`
-- Ubuntu Linux Path: `/mnt/e/android`
+This document explains how to set up **`E:\android`** (Linux path: `/mnt/e/android`) on Windows for AOSP compilation and Android Studio Emulator testing, including NTFS case-sensitivity (`fsutil`) and WSL2 metadata permission configuration.
 
 ---
 
-## ⚙️ PART 2: Modified Commands With Exact E:\ Drive Paths (`/mnt/e/android`)
+## 🛠️ STEP-BY-STEP E: DRIVE & NTFS PERMISSION SETUP
 
-Execute these commands inside your **Ubuntu Linux Terminal**:
+### Step 1: Create `E:\android` Directory (Windows PowerShell Admin)
+Open **PowerShell as Administrator** and run:
+```powershell
+mkdir E:\android
+```
 
-### 📍 Phase 1: Creating Workspace Folder on E:\ Drive
-- **Target Path**: `/mnt/e/android/aosp`
+---
+
+### Step 2: Enable NTFS Case-Sensitivity on `E:\android`
+Android OS / AOSP source compilation **requires case-sensitive filenames** (e.g. `Build` vs `build`).
+In PowerShell (Admin), run:
+```powershell
+fsutil.exe file setCaseSensitiveInfo "E:\android" enable
+```
+To verify:
+```powershell
+fsutil.exe file queryCaseSensitiveInfo "E:\android"
+```
+*(Expected Output: Case sensitive attribute on directory E:\android is enabled.)*
+
+---
+
+### Step 3: Configure WSL2 Linux Mount Permissions (`/etc/wsl.conf`)
+Open your **Ubuntu Linux Terminal** (`wsl` or `Ubuntu`) and configure `/etc/wsl.conf` so WSL mounts `E:` drive with Linux file metadata and permissions:
+
+Run in Ubuntu terminal:
+```bash
+sudo bash -c 'cat <<EOF > /etc/wsl.conf
+[automount]
+enabled = true
+options = "metadata,case=dir,uid=1000,gid=1000,umask=022"
+mountFsTab = true
+EOF'
+```
+
+---
+
+### Step 4: Restart WSL2 to Apply New Mount Options
+In **PowerShell (Admin)**, restart WSL2:
+```powershell
+wsl --shutdown
+```
+Then re-open **Ubuntu Linux Terminal** (`wsl`).
+
+---
+
+### Step 5: Verify Permissions in `/mnt/e/android`
+In **Ubuntu Linux Terminal**:
+```bash
+cd /mnt/e/android
+touch test_perm && chmod +x test_perm && ls -la test_perm && rm test_perm
+```
+If `test_perm` shows executable permissions (`-rwxr-xr-x`), NTFS permissions are fully configured!
+
+---
+
+## ⚙️ STEP 1 COMPILED COMMANDS ON E: DRIVE (`/mnt/e/android`)
+
+Now run all AOSP source compilation steps inside `/mnt/e/android`:
+
+### Phase 1: Directory Setup
+- **Linux Path**: `/mnt/e/android/aosp`
 - **Commands**:
   ```bash
-  # 1. E:\ drive par android aur aosp folder banayein
-  mkdir -p /mnt/e/android/aosp
-
-  # 2. aosp folder ke andar jayein
-  cd /mnt/e/android/aosp
+  cd /mnt/e/android
+  mkdir -p aosp
+  cd aosp
   ```
-- **Current Working Path**: `/mnt/e/android/aosp`
 
----
-
-### 📍 Phase 2: Installing Linux Build Toolchain
-- **Current Working Path**: `/mnt/e/android/aosp`
+### Phase 2: Install Build Dependencies & Sync
 - **Command**:
   ```bash
   sudo apt update && sudo apt install -y \
@@ -42,68 +86,44 @@ Execute these commands inside your **Ubuntu Linux Terminal**:
       rsync schedtool ccache libssl-dev repo
   ```
 
----
-
-### 📍 Phase 3: Syncing AOSP Base Source Code on E:\ Drive
-- **Current Working Path**: `/mnt/e/android/aosp`
-- **Commands**:
+- **Sync Commands**:
   ```bash
-  # Manifest initialize karein
   repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
-
-  # Full source code E:\ drive par sync/download karein
   repo sync -c -j$(nproc)
   ```
 
----
-
-### 📍 Phase 4: Build Environment & Target Select Karna
-- **Current Working Path**: `/mnt/e/android/aosp`
+### Phase 3: Build Custom System Images
 - **Commands**:
   ```bash
-  # Build scripts setup karein
   source build/envsetup.sh
-
-  # Emulator target select karein
   lunch sdk_gphone64_x86_64-userdebug
-  ```
-
----
-
-### 📍 Phase 5: Compiling Custom System Images
-- **Current Working Path**: `/mnt/e/android/aosp`
-- **Command**:
-  ```bash
   mka -j$(nproc)
   ```
-- **Progress Output**: Terminal par `[100% 125432/125432] Install: out/target/product/emulator_x86_64/system.img` show karega.
+
+### Phase 4: Output Files Location on E: Drive
+The output files will be generated at:
+- Linux Path: `/mnt/e/android/aosp/out/target/product/emulator_x86_64/`
+- Windows Path: `E:\android\aosp\out\target/product\emulator_x86_64\`
+
+Files generated:
+1. `system.img`
+2. `vendor.img`
+3. `ramdisk.img`
+4. `kernel-ranchu`
 
 ---
 
-### 📍 Phase 6: Output Files ka Exact Path (E:\ Drive)
+## 🟢 STEP 2 SETUP ON E: DRIVE (Windows SDK Path)
 
-Compilation successful hone par aapke 4 custom system image files is exact path par generate hongi:
+If Android Studio is configured to store SDK / system images on `E:\android\Sdk`:
 
-- **Ubuntu Linux Path**: `/mnt/e/android/aosp/out/target/product/emulator_x86_64/`
-- **Windows File Explorer Path**: `E:\android\aosp\out\target\product\emulator_x86_64\`
-
-Generated Files:
-1. `E:\android\aosp\out\target\product\emulator_x86_64\system.img`
-2. `E:\android\aosp\out\target\product\emulator_x86_64\vendor.img`
-3. `E:\android\aosp\out\target\product\emulator_x86_64\ramdisk.img`
-4. `E:\android\aosp\out\target\product\emulator_x86_64\kernel-ranchu`
-
----
-
-## 📍 Step 2 Setup on Windows (Copying Files to Windows SDK)
-
-Since C:\ drive is low on space, you can also store your Android Studio custom system image directory on **E:\** drive or Android Studio SDK path:
-
+In **Windows Command Prompt (cmd)**:
 ```cmd
-mkdir "C:\Users\Garv\AppData\Local\Android\Sdk\system-images\android-34\custom_multi_os\x86_64"
+mkdir "E:\android\Sdk\system-images\android-34\custom_multi_os\x86_64"
 ```
-Or create a symlink pointing to `E:\android\sdk\system-images\...`.
-Copy the 4 files from `E:\android\aosp\out\target\product\emulator_x86_64\` into the system image folder and add `source.properties`:
+Copy `system.img`, `vendor.img`, `ramdisk.img`, `kernel-ranchu` into `E:\android\Sdk\system-images\android-34\custom_multi_os\x86_64\`.
+
+Create `source.properties` inside that directory:
 ```ini
 Pkg.Revision=1
 Pkg.Desc=Custom Multi-OS Android System Image
