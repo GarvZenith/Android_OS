@@ -61,6 +61,15 @@ repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.
 repo sync -c -j8 --no-clone-bundle --no-tags
 ```
 
+### Step 2.5: Repairing an Existing / Incomplete AOSP Folder
+If you already have an existing AOSP folder with missing or corrupted files:
+1. Do **NOT** delete the folder if `.repo` directory exists inside it.
+2. Open terminal inside that folder and run force sync:
+   ```bash
+   repo sync -c -j8 --force-sync --no-clone-bundle
+   ```
+   Google's `repo` tool will automatically scan for missing/corrupted files and download **ONLY** what is missing, saving bandwidth and time.
+
 ---
 
 ## 3. Applying Framework & Security Patches
