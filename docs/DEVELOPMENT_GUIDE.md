@@ -23,18 +23,42 @@ sudo apt update && sudo apt install -y \
 
 ---
 
-## 2. Source Code Syncing
+## 2. Installing Google `repo` Tool & Source Code Syncing
 
+### Step 2.1: Install Google `repo` Tool
 ```bash
-# Create directory for source tree
+# Create bin directory in your home folder
+mkdir -p ~/bin
+export PATH=~/bin:$PATH
+
+# Download repo launcher script
+curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+chmod a+rx ~/bin/repo
+```
+
+### Step 2.2: Configure Git Identity
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+### Step 2.3: Initialize AOSP Source Tree
+```bash
+# Create working directory for source tree
 mkdir -p ~/aosp
 cd ~/aosp
 
-# Initialize repository (using LineageOS / AOSP manifest)
-repo init -u https://github.com/LineageOS/android.git -b lineage-20.0 --git-lfs
+# Initialize AOSP repository (Official AOSP Android 14 branch)
+repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r17 --depth=1
 
-# Sync source tree (using 8 parallel threads)
-repo sync -c -j8 --force-sync --no-clone-bundle
+# (OR for LineageOS base):
+# repo init -u https://github.com/LineageOS/android.git -b lineage-20.0 --git-lfs
+```
+
+### Step 2.4: Sync (Download) Source Code
+```bash
+# Download source code using parallel threads (8 threads)
+repo sync -c -j8 --no-clone-bundle --no-tags
 ```
 
 ---
