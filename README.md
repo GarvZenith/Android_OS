@@ -55,6 +55,7 @@ All detailed specifications, plans, and guides are structured inside the [`docs/
 - 📖 **[HARDWARE_REQUIREMENTS.MD](docs/hardware_requirements.md)**: Processor (Qualcomm Snapdragon), RAM, and storage recommendations.
 - 📖 **[IMPLEMENTATION_PLAN_V4.MD](docs/implementation_plan_v4_android_studio_emulator.md)**: Android Studio Emulator target plan.
 - 📖 **[DEVICE_SETUP_CHECKLIST.MD](docs/device_setup_checklist.md)**: Physical phone preparation checklist.
+- 📖 **[WSL_WINDOWS_FILE_EXPLORER_GUIDE.md](docs/wsl_windows_file_explorer_guide.md)**: Viewing WSL2 Linux `~` & AOSP paths in Windows File Explorer.
 - 📖 **[MULTI_OS_COEXISTENCE_GUIDE.MD](docs/multi_os_coexistence_guide.md)**: Multi-window split-screen usage guide.
 
 ---
