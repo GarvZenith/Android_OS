@@ -21,29 +21,6 @@ This custom Android OS is engineered to serve as both an **unrestricted applicat
 
 ---
 
-## 🏛️ Project Directory Architecture (`Android_OS` vs `aosp`)
-
-### 1. `E:\Project\Android_OS` (Master Project Control Repo)
-- **Role**: **The Master Blueprint & Proprietary Repo** (Synced with GitHub `https://github.com/GarvZenith/Android_OS.git`).
-- **Contains**: Your custom patches (`patches/`), custom modules (`modules/`), automation build scripts (`scripts/`), local manifests (`manifests/`), device configs (`devices/`), and full documentation (`docs/`).
-- **Why it matters**: This is your primary development workspace where all new features, custom code, and documentation live permanently.
-
-### 2. `E:\android\aosp` (AOSP Compilation Factory & Engine)
-- **Role**: **The Raw Engine & OS Compiler Workspace**.
-- **Contains**: Google's raw Android source code tree (Linux Kernel, Android C-library `bionic`, Java Framework, SystemUI, ART Runtime, Compilers).
-- **Why it matters**: Android's compiler (`mka` / `ninja` / `soong`) requires all source code files to sit inside an AOSP tree structure to generate the final OS images (`system.img`, `vendor.img`, `kernel-ranchu`).
-
-```
-+------------------------------------+        +-----------------------------------+
-|  E:\Project\Android_OS             |        |  E:\android\aosp                  |
-|  (Master GitHub Repository)        | -----> |  (AOSP Build Factory & Engine)    |
-|  - Custom Patches & Modules        | Inject |  - Raw Android OS Source Code     |
-|  - Build Scripts & Configs         | Patches|  - Compiles system.img / vendor.img|
-+------------------------------------+        +-----------------------------------+
-```
-
----
-
 ## Subsystem Breakdown
 
 ### 1. Core OS & Security Control Layer

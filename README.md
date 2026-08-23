@@ -57,6 +57,7 @@ All detailed specifications, plans, and guides are structured inside the [`docs/
 - 📖 **[DEVICE_SETUP_CHECKLIST.MD](docs/device_setup_checklist.md)**: Physical phone preparation checklist.
 - 📖 **[MULTI_OS_COEXISTENCE_GUIDE.MD](docs/multi_os_coexistence_guide.md)**: Multi-window split-screen usage guide.
 - 📖 **[MODULAR_DEVELOPMENT_WORKFLOW.MD](docs/MODULAR_DEVELOPMENT_WORKFLOW.md)**: Storage-efficient modular development workflow.
+- 📖 **[LESSONS_LEARNED_AND_BEST_PRACTICES.MD](docs/LESSONS_LEARNED_AND_BEST_PRACTICES.md)**: Troubleshooting post-mortem, pitfalls & verified best practices guide.
 - 📖 **[TROUBLESHOOTING_WSL_NTFS.MD](docs/troubleshooting_wsl_ntfs.md)**: Troubleshooting WSL2 E: drive NTFS permissions & `icacls` resolution guide.
 
 ---
