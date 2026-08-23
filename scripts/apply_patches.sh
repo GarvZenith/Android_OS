@@ -42,8 +42,8 @@ else
     exit 1
 fi
 
-# 2. Inject Embedded Root Binary (`su`) & Superuser Build Flags
-echo -e "\n${GREEN}[2/4] Injecting Root Superuser (`su`) Build Rules...${NC}"
+# 2. Inject Embedded Root Binary (su) & Superuser Build Flags
+echo -e "\n${GREEN}[2/4] Injecting Root Superuser (su) Build Rules...${NC}"
 SU_RULES="$PROJECT_ROOT/patches/su_root_integration.mk"
 
 if [ -f "$SU_RULES" ]; then

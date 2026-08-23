@@ -7,11 +7,9 @@ Allows MicroG (GmsCore) and custom app testing environments to spoof package sig
 Required for Google Play Services compatibility without official GApps bloatware.
 
 ---
- core/res/AndroidManifest.xml                              | 8 ++++++++
- core/res/res/values/config.xml                             | 2 ++
- core/res/res/values/strings.xml                            | 5 +++++
- .../server/pm/PackageManagerServiceUtils.java            | 9 +++++++++
- 4 files changed, 24 insertions(+)
+ core/res/AndroidManifest.xml   | 8 ++++++++
+ core/res/res/values/strings.xml | 5 +++++
+ 2 files changed, 13 insertions(+)
 
 diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
 index 1234567..89abcde 100640
