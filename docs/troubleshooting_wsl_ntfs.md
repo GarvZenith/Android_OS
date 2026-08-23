@@ -1,75 +1,53 @@
-# Troubleshooting WSL2 NTFS Permissions & Directory Creation Guide
+# Troubleshooting WSL2 NTFS Permissions & I/O Sync Error Guide
 
-This document records the exact issue, root cause analysis, and verified commands used to resolve the `Permission denied` error when setting up **`E:\android`** on Windows WSL2 for AOSP source compilation.
-
----
-
-## 🚨 Problem Encountered
-
-When attempting to create the AOSP source directory inside Ubuntu WSL2:
-```bash
-garv@DESKTOP-1T0HST1:/mnt/e/android$ mkdir -p aosp
-mkdir: Permission denied
-```
-Even after setting `chown` and `chmod` inside Linux, directory creation returned `Permission denied`.
+This document records the issues, root causes, and verified solutions for WSL2 NTFS drive setups during AOSP compilation.
 
 ---
 
-## 🔍 Root Cause Analysis
+## ISSUE 1: `mkdir: Permission denied` on `/mnt/e/android`
 
-- **Windows NTFS ACL Override**: The `E:\android` directory was initially created using Windows PowerShell as Administrator (`mkdir E:\android`).
-- Windows NTFS Access Control Lists (ACLs) restricted container creation rights to Administrator accounts, blocking the WSL2 non-root user (`garv`) from creating subdirectories on the NTFS mount point.
+### Root Cause
+Windows NTFS Access Control Lists (ACLs) restricted container creation rights to Administrator accounts, blocking the WSL2 non-root user (`garv`) from creating subdirectories on the NTFS mount point.
 
----
-
-## ✅ Verified Solution & Commands Used
-
-### Step 1: Grant Full Inherited Permissions via Windows ACL (`icacls`)
+### Verified Solution
 Run in **Windows PowerShell (Admin)**:
 ```powershell
 icacls E:\android /grant "Everyone:(OI)(CI)F"
-```
-
-#### Command Breakdown:
-- `icacls E:\android`: Modifies Access Control Lists for the `E:\android` directory.
-- `/grant "Everyone"`: Applies permissions to all system users and WSL2 instances.
-- `(OI)`: **Object Inherit** - Files created inside will inherit these permissions.
-- `(CI)`: **Container Inherit** - Subdirectories created inside will inherit these permissions.
-- `(F)`: **Full Control** - Enables read, write, execute, delete, and directory creation.
-
----
-
-### Step 2: Enable NTFS Case-Sensitivity (`fsutil`)
-Run in **Windows PowerShell (Admin)**:
-```powershell
 fsutil.exe file setCaseSensitiveInfo "E:\android" enable
 ```
 
 ---
 
-### Step 3: Configure WSL2 Mount Metadata (`/etc/wsl.conf`)
+## ISSUE 2: `[Errno 5] Input/output error` During `repo sync`
+
+### Problem Description
+During `repo sync`, fetching massive prebuilt toolchains like `platform/prebuilts/clang/host/linux-x86` (62.61 GiB) fails with:
+```text
+fatal: write error: Input/output error
+fatal: fetch-pack: invalid index-pack output
+RepoUnhandledExceptionError: [Errno 5] Input/output error
+```
+
+### Root Cause
+- `platform/prebuilts/clang/host/linux-x86` contains giant git packfiles (62+ GiB).
+- Streaming massive git packs over WSL2's 9P/drvfs mount layer onto an NTFS drive causes git buffer allocation timeouts and file handle exhaustion in WSL2 I/O subsystem.
+
+### Verified Solution
+
+#### 1. Configure Git Pack & Memory Buffers
 Run in **Ubuntu Linux Terminal**:
 ```bash
-sudo printf '[automount]\nenabled = true\noptions = "metadata,case=dir,uid=1000,gid=1000,umask=022"\nmountFsTab = true\n' | sudo tee /etc/wsl.conf
+git config --global core.packedGitLimit 512m
+git config --global core.packedGitWindowSize 512m
+git config --global pack.deltaCacheSize 512m
+git config --global pack.packSizeLimit 2g
+git config --global pack.threads 4
 ```
 
----
-
-### Step 4: Restart WSL2 Instance
-Run in **Windows PowerShell (Admin)**:
-```powershell
-wsl --shutdown
-```
-
----
-
-### Step 5: Successful Directory Creation & Permission Verification
+#### 2. Resume `repo sync` with Low Parallel Job Count
 Run in **Ubuntu Linux Terminal**:
 ```bash
-cd /mnt/e/android
-mkdir -p aosp
-cd aosp
+cd /mnt/e/android/aosp
+repo sync -c -j2 --fail-fast --no-tags --no-clone-bundle
 ```
-
-#### Verification Result:
-- `E:\android\aosp` (`/mnt/e/android/aosp`) created successfully without any permission errors!
+*Why this works*: `repo` automatically resumes from 99% progress. Reducing job threads (`-j2`) prevents disk I/O congestion and completes downloading large prebuilts safely.
